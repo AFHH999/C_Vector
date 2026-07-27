@@ -1,5 +1,7 @@
 #include "../inc/vector.h"
 
+void print_double(void *elem) { printf("%.2f", *(double *)elem); }
+
 int run(void) {
     vector v;
 
@@ -16,7 +18,7 @@ int run(void) {
 
     vector_delete(&v, 1);
 
-    vector_print(&v);
+    vector_print_with(&v, print_double);
 
     vector_free(&v);
 

@@ -65,6 +65,17 @@ int vector_delete(vector *v, size_t i) {
     return 0;
 }
 
+void vector_print_with(vector *v, void (*print_elem)(void *)) {
+    printf("[\n");
+    for (size_t i = 0; i < v->length; i++) {
+        void *elem = (char *)v->data + i * v->elem_size;
+        printf("  ");
+        print_elem(elem);
+        printf("\n");
+    }
+    printf("]\n");
+}
+
 void vector_print(vector *v) {
     for (size_t i = 0; v->length > i; i++) {
         unsigned char *byte = (unsigned char *)v->data + i * v->elem_size;

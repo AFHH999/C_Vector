@@ -60,6 +60,24 @@ int main(void) {
 
 All `int`-returning functions return `0` on success and `-1` on error.
 
+## Printing with callbacks
+
+`vector_print` dumps raw bytes; for human-readable output, use `vector_print_with`
+and provide a type-specific callback:
+
+```c
+// Write one callback per type you store:
+void print_int(void *elem)    { printf("%d",   *(int *)elem);    }
+void print_float(void *elem)  { printf("%.2f", *(float *)elem);  }
+void print_char(void *elem)   { printf("%c",   *(char *)elem);   }
+void print_double(void *elem) { printf("%.2lf", *(double *)elem); }
+
+// Then call:
+vector_print_with(&v, print_double);
+```
+
+The callbacks live in your own code, not in the library — only you know the type.
+
 ## Architecture
 
 ```

@@ -24,6 +24,8 @@ void *vector_get(vector *v, size_t i);
 
 int vector_delete(vector *v, size_t i);
 
+void vector_print_with(vector *v, void (*print_elem)(void *));
+
 void vector_print(vector *v);
 
 void vector_free(vector *v);
