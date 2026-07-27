@@ -2,14 +2,14 @@ CC = clang
 CFLAGS = -Wall -Wextra -pedantic -std=c11 -Iinc -MMD -MP
 
 # Target names
-TARGET = /bin/vector
-TEST_TARGET = /bin/test_vector
+TARGET = bin/vector
+TEST_TARGET = bin/test_vector
 
 # Auto discover components, except main.c
-ENGINE_SRCS = $(filter_out src/main.c, $(wildcard src/*.c))
+ENGINE_SRCS = $(filter-out src/main.c, $(wildcard src/*.c))
 ENGINE_OBJS = $(patsubst src/%.c, bin/%.o, $(ENGINE_SRCS))
 
-all: $(Target)
+all: $(TARGET)
 
 # The executable production
 $(TARGET): bin/main.o $(ENGINE_OBJS)
@@ -38,6 +38,9 @@ bin:
 
 clean:
 	rm -f bin/*.o bin/*.d $(TARGET) $(TEST_TARGET)
+
+memcheck:
+	valgrind ./bin/test_vector
 
 -include $(DEPS)
 
