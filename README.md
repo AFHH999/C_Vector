@@ -18,6 +18,7 @@ Provides a type-agnostic, heap-allocated dynamic array that grows automatically 
 make          # build the example program (bin/vector)
 make test     # build and run the test suite (bin/test_vector)
 make clean    # remove build artifacts
+make memcheck # Check for memory problems
 ```
 
 ## Usage
