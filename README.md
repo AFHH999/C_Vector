@@ -70,7 +70,35 @@ tests/     — Criterion test suite
 Makefile   — builds the example binary and test runner
 ```
 
-The struct tracks four fields:
+## Destructor hook
+
+When storing *owning pointers* (values from `malloc`), the vector cannot know how
+to free the data they point to.  Set `v.dtor` to a cleanup function and it will be
+called on every element before it is removed by `pop`, `delete`, or `free`:
+
+```c
+void free_ptr(void *elem) { free(*(void **)elem); }
+
+int main(void) {
+    vector v;
+    vector_init(&v, sizeof(char *));
+    v.dtor = free_ptr;                   // register the destructor
+
+    char *s = malloc(6);
+    strcpy(s, "hello");
+    vector_push(&v, &s);                 // push the pointer, not the string
+
+    vector_pop(&v);                      // dtor calls free(s)
+    vector_free(&v);                     // dtor called on remaining elements
+
+    return 0;
+}
+```
+
+For plain types (`int`, `float`, `double`, structs without heap pointers) this is
+unnecessary — leave `v.dtor` at its default `NULL` and nothing happens.
+
+The struct tracks five fields:
 
 | Field | Purpose |
 | ------- | --------- |
@@ -78,6 +106,7 @@ The struct tracks four fields:
 | `size_t capacity` | Total slots currently allocated |
 | `size_t length` | Slots actually in use |
 | `size_t elem_size` | Byte-width of one element (set at `init`) |
+| `void (*dtor)(void *)` | Optional destructor callback, `NULL` by default |
 
 ## License
 

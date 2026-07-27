@@ -194,3 +194,42 @@ Test(Vector, push_delete_push) {
     cr_assert_eq(*val, 30); // 30 shifted from index 2 to 1
     vector_free(&v);
 }
+
+Test(Vector, pop_with_dtor_frees_memory) {
+    vector v;
+    vector_init(&v, sizeof(char *));
+    v.dtor = free_ptr;
+
+    char *s = malloc(6);
+    strcpy(s, "hello");
+    vector_push(&v, &s);
+
+    // Before pop: s owns heap memory
+    vector_pop(&v); // dtor calls free(s)
+    // After pop: no leak, s is freed
+
+    cr_assert_eq(v.length, 0);
+    vector_free(&v);
+}
+
+Test(Vector, delete_with_dtor_frees_memory) {
+    vector v;
+    vector_init(&v, sizeof(char *));
+    v.dtor = free_ptr;
+
+    char *a = malloc(4);
+    strcpy(a, "cat");
+    char *b = malloc(4);
+    strcpy(b, "dog");
+    vector_push(&v, &a);
+    vector_push(&v, &b);
+
+    vector_delete(&v, 0); // dtor calls free(a)
+
+    cr_assert_eq(v.length, 1);
+    char **remaining = vector_get(&v, 0);
+    cr_assert_not_null(remaining);
+    cr_assert_str_eq(*remaining, "dog");
+
+    vector_free(&v); // dtor calls free(b)
+}

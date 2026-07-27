@@ -9,6 +9,7 @@ int vector_init(vector *v, size_t elem_size) {
     v->capacity = 0; // Total number of elements the allocated memory can hold
     v->length = 0;   // Actual usage of the allocated memory
     v->elem_size = elem_size;
+    v->dtor = NULL;
 
     return 0;
 }
@@ -31,6 +32,10 @@ int vector_pop(vector *v) {
     if (v->length == 0) {
         return -1;
     }
+    if (v->dtor) {
+        void *elem = (char *)v->data + (v->length - 1) * v->elem_size;
+        v->dtor(elem);
+    }
     v->length--; //(B)
     return 0;
 }
@@ -43,9 +48,15 @@ void *vector_get(vector *v, size_t i) {
     }
 }
 
+void free_ptr(void *elem) { free(*(void **)elem); }
+
 int vector_delete(vector *v, size_t i) {
     if (i >= v->length) {
         return -1;
+    }
+    if (v->dtor) {
+        void *elem = (char *)v->data + i * v->elem_size;
+        v->dtor(elem);
     }
     memmove((char *)v->data + i * v->elem_size,
             (char *)v->data + (i + 1) * v->elem_size,
@@ -66,6 +77,11 @@ void vector_print(vector *v) {
 }
 
 void vector_free(vector *v) {
+
+    if (v->dtor) {
+        for (size_t i = 0; i < v->length; i++)
+            v->dtor((char *)v->data + i * v->elem_size);
+    }
     free(v->data);
     v->data = NULL;
     v->capacity = 0;
